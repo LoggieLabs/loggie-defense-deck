@@ -269,8 +269,8 @@
 </div>
 
 <div class="topright">
-  <a class="dl" href="./assets/docs/loggie-defense-pitch-deck.pdf" target="_blank" rel="noopener">Open PDF</a>
-  <a class="dl" href="./assets/docs/loggie-defense-pitch-deck.pdf" download>Download PDF</a>
+  <a class="dl" href="https://github.com/LoggieLabs/loggie-defense-deck/releases/download/defense-deck-v1/loggie-defense-pitch-deck.pdf" target="_blank" rel="noopener">Open PDF</a>
+  <a class="dl" href="https://github.com/LoggieLabs/loggie-defense-deck/releases/download/defense-deck-v1/loggie-defense-pitch-deck.pdf" download>Download PDF</a>
   <button class="dl btn" id="verifyShaBtn" type="button" title="Verify the PDF integrity against its published SHA-256 checksum. If opened locally, you will be prompted to select your copy of the PDF — the file never leaves your browser.">Verify (SHA-256)</button>
   <span class="sha-status" id="shaStatus" aria-live="polite"></span>
 </div>
@@ -393,7 +393,7 @@
   progress.style.width = (1 / totalSlides * 100) + '%';
 
   // ─── SHA-256 verification ──────────────────────────────────────────────
-  const PDF_PATH = "./assets/docs/loggie-defense-pitch-deck.pdf";
+  const PDF_PATH = "https://github.com/LoggieLabs/loggie-defense-deck/releases/download/defense-deck-v1/loggie-defense-pitch-deck.pdf";
   const EXPECTED_SHA256 = "d8c978f30b3bb07d184674b361d99648ae0a6976f443ec0e5b110325ecea53c5";
 
   const verifyBtn = document.getElementById("verifyShaBtn");

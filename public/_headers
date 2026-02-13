@@ -4,7 +4,7 @@
   Permissions-Policy: camera=(), microphone=(), geolocation=()
 
 /defense/*
-  Content-Security-Policy: default-src 'self'; img-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self';
+  Content-Security-Policy: default-src 'self'; img-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; connect-src 'self' https://github.com;
 
 /defense/assets/slides/*
   Cache-Control: public, max-age=31536000, immutable
