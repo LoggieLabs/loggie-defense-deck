@@ -37,16 +37,19 @@ document.getElementById('complianceChips').addEventListener('click', (e) => {
   }
 });
 
-// ── Crypto capability check ─────────────────────────────────
+// ── Crypto capability badge (policy + capability) ───────────
+const REQUIRE_KYBER = false; // mirrors config above
 (async () => {
   try {
     const cap = await client.checkCryptoCapability();
-    if (cap.kyber) {
-      cryptoBadge.innerHTML = 'Protected by <span class="pq">post-quantum hybrid encryption</span> (X25519 + ML-KEM)';
-    } else if (cap.available) {
-      cryptoBadge.innerHTML = 'Protected by <span class="pq">X25519 encryption</span>';
-    } else {
+    if (!cap.webCrypto) {
       cryptoBadge.textContent = 'Encryption unavailable — update your browser';
+    } else if (cap.kyber) {
+      cryptoBadge.innerHTML = 'Protected by <span class="pq">post-quantum hybrid encryption</span> (X25519 + ML-KEM)';
+    } else if (REQUIRE_KYBER) {
+      cryptoBadge.textContent = 'PQC required — blocked by CSP or browser extension';
+    } else {
+      cryptoBadge.innerHTML = 'Protected by <span class="pq">X25519 encryption</span> (classical fallback)';
     }
   } catch {
     cryptoBadge.textContent = 'End-to-end encrypted';
