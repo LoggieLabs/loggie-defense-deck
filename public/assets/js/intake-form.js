@@ -4,6 +4,7 @@ import { createPilotAccessClient } from '/assets/js/intake-client.js';
 const client = createPilotAccessClient({
   endpoint: 'https://secure-intake.pages.dev/api/intake',
   requireKyber: false,
+  attemptHybrid: false, // strict CSP — skip WASM entirely, X25519-only
   publicKeys: {
     x25519PubHex: 'bebc2a4a3826f20e389c2236a5c4ea55222e70e33a1bf03f873436b079256b64',
     kyberPubB64: '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',
@@ -37,19 +38,15 @@ document.getElementById('complianceChips').addEventListener('click', (e) => {
   }
 });
 
-// ── Crypto capability badge (policy + capability) ───────────
-const REQUIRE_KYBER = false; // mirrors config above
+// ── Crypto capability badge ──────────────────────────────────
 (async () => {
   try {
     const cap = await client.checkCryptoCapability();
     if (!cap.webCrypto) {
       cryptoBadge.textContent = 'Encryption unavailable — update your browser';
-    } else if (cap.kyber) {
-      cryptoBadge.innerHTML = 'Protected by <span class="pq">post-quantum hybrid encryption</span> (X25519 + ML-KEM)';
-    } else if (REQUIRE_KYBER) {
-      cryptoBadge.textContent = 'PQC required — blocked by CSP or browser extension';
     } else {
-      cryptoBadge.innerHTML = 'Protected by <span class="pq">X25519 encryption</span> (classical fallback)';
+      // attemptHybrid:false — X25519 by design (strict CSP, no WASM)
+      cryptoBadge.innerHTML = 'Protected by <span class="pq">X25519 end-to-end encryption</span>';
     }
   } catch {
     cryptoBadge.textContent = 'End-to-end encrypted';
