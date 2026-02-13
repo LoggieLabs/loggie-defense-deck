@@ -1,0 +1,21 @@
+# Cloudflare Pages configuration for secure-intake-cloudflare
+# Deploy with: wrangler pages deploy
+
+name = "secure-intake"
+compatibility_date = "2024-01-01"
+pages_build_output_dir = "public"
+
+# D1 Database binding
+[[d1_databases]]
+binding = "DB"
+database_name = "intake-db"
+database_id = "b48f27d6-d4be-45db-bf6f-c3ca20a9fccd"
+
+# Environment variables (set via wrangler pages secret put)
+# ALLOWED_ORIGINS - comma-separated list of allowed origins
+# INTAKE_IP_SALT - secret salt for IP hashing
+# MAX_BODY_BYTES - optional, default 65536 (64KB)
+# ALLOWED_VERSIONS - optional, default "loggie.intake.v1"
+# ADMIN_EMAILS - comma-separated operator emails (defense-in-depth check)
+# NOTIFY_WEBHOOK_URL - optional webhook for new submission notifications (metadata only)
+
