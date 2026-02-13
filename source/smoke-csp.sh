@@ -96,29 +96,23 @@ else
   fail "Could not fetch entry chunk"
 fi
 
-# 4. Chunk serving
+# 4. No WASM chunks deployed
 echo ""
-echo "4) Chunk serving"
-# Extract chunk path from entry (portable — no PCRE required)
-CHUNK_PATH=$(echo "$ENTRY" | grep -o 'import("\.\/chunks\/[^"]*")' | head -1 | sed 's/import("\.\/\(.*\)")/\1/' || echo "")
+echo "4) No WASM chunks"
 
-if [ -n "$CHUNK_PATH" ]; then
-  CHUNK_STATUS=$(curl -sI "${BASE}/assets/js/${CHUNK_PATH}" 2>/dev/null | head -1)
-  CHUNK_CT=$(curl -sI "${BASE}/assets/js/${CHUNK_PATH}" 2>/dev/null | grep -i "content-type" || echo "")
-
-  if echo "$CHUNK_STATUS" | grep -q "200"; then
-    pass "Chunk ${CHUNK_PATH} returns 200"
-  else
-    fail "Chunk ${CHUNK_PATH} returns: ${CHUNK_STATUS}"
-  fi
-
-  if echo "$CHUNK_CT" | grep -qi "javascript"; then
-    pass "Chunk Content-Type is JavaScript"
-  else
-    fail "Chunk Content-Type unexpected: ${CHUNK_CT}"
-  fi
+if echo "$ENTRY" | grep -q 'import("\.\/chunks/'; then
+  fail "Entry has relative chunk imports — pqc-shared should be external"
 else
-  fail "Could not extract chunk path from entry"
+  pass "No relative chunk imports (pqc-shared is external)"
+fi
+
+CHUNKS_STATUS=$(curl -sI "${BASE}/assets/js/chunks/" 2>/dev/null | head -1 || echo "")
+if echo "$CHUNKS_STATUS" | grep -q "404\|403"; then
+  pass "No chunks directory served"
+elif echo "$CHUNKS_STATUS" | grep -q "200"; then
+  fail "Chunks directory still accessible (stale deployment?)"
+else
+  pass "No chunks directory served"
 fi
 
 # Summary

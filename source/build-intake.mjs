@@ -1,22 +1,30 @@
 #!/usr/bin/env node
 /**
- * Bundles secure-intake-client into browser-ready ESM with code splitting.
+ * Bundles secure-intake-client for the defense portal (strict CSP).
  *
- * The main entry chunk contains only pure-JS code (no WASM).
- * @omnituum/pqc-shared (Kyber WASM) is split into a lazy chunk that is
- * only fetched when hybrid encryption is actually attempted via dynamic
- * import() inside hybrid-lazy.ts.
+ * @omnituum/pqc-shared is marked EXTERNAL — no WASM chunks are generated.
+ * The defense portal uses attemptHybrid:false, so the dynamic import()
+ * in hybrid-lazy.ts is dead code. If it ever runs, the import fails
+ * with a module-not-found error caught by try/catch → X25519 fallback.
+ *
+ * This eliminates all WASM from the deploy: no chunk files, no
+ * WebAssembly.instantiate(), no Emscripten abort risk.
  *
  * Run: node source/build-intake.mjs
  */
 import { build } from 'esbuild';
 import { fileURLToPath } from 'url';
 import { dirname, resolve } from 'path';
+import { rmSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const omni = resolve(root, '..', 'Omnituum');
 const jsDir = resolve(root, 'public', 'assets', 'js');
+
+// Clean stale chunks from previous builds
+const chunksDir = resolve(jsDir, 'chunks');
+rmSync(chunksDir, { recursive: true, force: true });
 
 const result = await build({
   entryPoints: [resolve(__dirname, 'intake-entry.js')],
@@ -24,29 +32,22 @@ const result = await build({
   format: 'esm',
   target: 'es2020',
   platform: 'browser',
-  // Code splitting: outdir instead of outfile
-  outdir: jsDir,
-  splitting: true,
-  entryNames: 'intake-client',       // main entry → intake-client.js
-  chunkNames: 'chunks/[name]-[hash]', // lazy chunks → chunks/
+  outfile: resolve(jsDir, 'intake-client.js'),
   minify: true,
   nodePaths: [
     resolve(omni, 'secure-intake-client', 'node_modules'),
     resolve(omni, 'pqc-shared', 'node_modules'),
   ],
-  // Node built-in 'crypto' is only used as fallback when globalThis.crypto is missing.
-  // Browsers always have Web Crypto API, so mark it external (dead code in browser).
-  external: ['crypto'],
+  // pqc-shared is EXTERNAL: no WASM in output, no chunk files.
+  // The dynamic import("@omnituum/pqc-shared") in hybrid-lazy.ts
+  // becomes dead code (attemptHybrid:false skips it entirely).
+  external: ['crypto', '@omnituum/pqc-shared'],
   metafile: true,
 });
 
-// Print sizes for all output chunks
-const outputs = result.metafile.outputs;
-for (const [file, meta] of Object.entries(outputs)) {
-  const name = file.split('/').slice(-2).join('/');
-  const kb = (meta.bytes / 1024).toFixed(1);
-  console.log(`  ${name.padEnd(40)} ${kb} KB`);
-}
+// Print bundle size
+const outBytes = Object.values(result.metafile.outputs)[0].bytes;
+console.log(`  intake-client.js  ${(outBytes / 1024).toFixed(1)} KB`);
 
 // ── Build assertion: no WASM/pqc-shared in entry chunk ──────────────────
 import { readFileSync } from 'fs';
