@@ -1,6 +1,12 @@
 #!/usr/bin/env node
 /**
- * Bundles secure-intake-client + pqc-shared into a single browser-ready ESM file.
+ * Bundles secure-intake-client into browser-ready ESM with code splitting.
+ *
+ * The main entry chunk contains only pure-JS code (no WASM).
+ * @omnituum/pqc-shared (Kyber WASM) is split into a lazy chunk that is
+ * only fetched when hybrid encryption is actually attempted via dynamic
+ * import() inside hybrid-lazy.ts.
+ *
  * Run: node source/build-intake.mjs
  */
 import { build } from 'esbuild';
@@ -10,6 +16,7 @@ import { dirname, resolve } from 'path';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, '..');
 const omni = resolve(root, '..', 'Omnituum');
+const jsDir = resolve(root, 'public', 'assets', 'js');
 
 const result = await build({
   entryPoints: [resolve(__dirname, 'intake-entry.js')],
@@ -17,7 +24,11 @@ const result = await build({
   format: 'esm',
   target: 'es2020',
   platform: 'browser',
-  outfile: resolve(root, 'public', 'assets', 'js', 'intake-client.js'),
+  // Code splitting: outdir instead of outfile
+  outdir: jsDir,
+  splitting: true,
+  entryNames: 'intake-client',       // main entry → intake-client.js
+  chunkNames: 'chunks/[name]-[hash]', // lazy chunks → chunks/
   minify: true,
   nodePaths: [
     resolve(omni, 'secure-intake-client', 'node_modules'),
@@ -29,6 +40,10 @@ const result = await build({
   metafile: true,
 });
 
-// Print bundle size
-const outBytes = Object.values(result.metafile.outputs)[0].bytes;
-console.log(`✓ intake-client.js  ${(outBytes / 1024).toFixed(1)} KB`);
+// Print sizes for all output chunks
+const outputs = result.metafile.outputs;
+for (const [file, meta] of Object.entries(outputs)) {
+  const name = file.split('/').slice(-2).join('/');
+  const kb = (meta.bytes / 1024).toFixed(1);
+  console.log(`  ${name.padEnd(40)} ${kb} KB`);
+}
