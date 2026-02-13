@@ -2,14 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>Loggie — Defense Pitch Deck</title>
 <style>
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
   html, body {
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    height: 100dvh;
     background: #0B1120;
     font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     overflow: hidden;
@@ -22,6 +23,8 @@
     position: relative;
     width: 100%;
     height: 100%;
+    touch-action: pan-y;
+    overscroll-behavior: none;
   }
 
   .slide {
@@ -29,7 +32,7 @@
     top: 0; left: 0;
     width: 100%;
     height: 100%;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     opacity: 0;
@@ -37,7 +40,12 @@
     pointer-events: none;
   }
 
+  .slide.nearby {
+    display: flex;
+  }
+
   .slide.active {
+    display: flex;
     opacity: 1;
     pointer-events: auto;
   }
@@ -104,6 +112,11 @@
     color: rgba(255, 255, 255, 0.9);
   }
 
+  /* Menu button — hidden on desktop, shown on mobile */
+  .menu-btn {
+    display: none;
+  }
+
   /* Help overlay */
   .help-overlay {
     position: fixed;
@@ -153,12 +166,11 @@
     position: fixed;
     top: 0;
     height: 100%;
-    width: 25%;
     z-index: 50;
     cursor: pointer;
   }
 
-  .click-prev { left: 0; }
+  .click-prev { left: 0; width: 25%; }
   .click-next { right: 0; width: 75%; }
 
   /* Fullscreen adjustments */
@@ -177,6 +189,7 @@
     gap: 14px;
     align-items: center;
     z-index: 100;
+    padding-top: env(safe-area-inset-top, 0px);
   }
 
   .dl {
@@ -224,13 +237,157 @@
     white-space: nowrap;
   }
 
+  /* ── Mobile bottom-sheet menu ────────────────────────────────── */
+  .menu-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+
+  .menu-backdrop.open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .menu-sheet {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #1a2035;
+    border-radius: 14px 14px 0 0;
+    z-index: 301;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+    padding: 12px 16px;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .menu-sheet.open {
+    transform: translateY(0);
+  }
+
+  .menu-sheet .menu-handle {
+    width: 36px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 2px;
+    margin: 0 auto 10px;
+  }
+
+  .menu-sheet button,
+  .menu-sheet a {
+    display: block;
+    width: 100%;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.8);
+    font: 15px/1.2 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    padding: 14px 16px;
+    border-radius: 8px;
+    text-align: left;
+    cursor: pointer;
+    text-decoration: none;
+  }
+
+  .menu-sheet button:active,
+  .menu-sheet a:active {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  /* ── Mobile (touch device, coarse pointer) ──────────────────── */
+  @media (hover: none) and (pointer: coarse) {
+    /* Always show controls on mobile */
+    .controls {
+      opacity: 1;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      justify-content: center;
+      gap: 6px;
+      padding: 10px 16px;
+      padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.4));
+    }
+
+    /* Thumb-sized buttons */
+    .controls button {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 10px 20px;
+      font-size: 14px;
+      border-radius: 8px;
+    }
+
+    /* Hide desktop-only controls; show ⋯ menu button */
+    .controls .desktop-only { display: none; }
+    .menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+
+    /* 50 / 50 tap zones */
+    .click-prev { width: 50%; }
+    .click-next { width: 50%; }
+
+    /* Hide desktop chrome on mobile */
+    .topright { display: none; }
+    .checksum { display: none; }
+
+    /* Counter: hidden by default, flashes on navigation */
+    .counter {
+      bottom: auto;
+      top: 14px;
+      right: 16px;
+      left: 16px;
+      text-align: center;
+      font-size: 13px;
+      padding-top: env(safe-area-inset-top, 0px);
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .counter.visible {
+      opacity: 1;
+    }
+
+    /* Progress bar above safe area */
+    .progress {
+      bottom: env(safe-area-inset-bottom, 0px);
+    }
+  }
+
+  /* ── Landscape mobile ───────────────────────────────────────── */
+  @media (hover: none) and (pointer: coarse) and (orientation: landscape) {
+    .controls {
+      padding: 6px 16px;
+      padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+      background: linear-gradient(transparent, rgba(0, 0, 0, 0.3));
+    }
+
+    .controls.autohidden {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .counter {
+      font-size: 11px;
+    }
+  }
+
   /* Print styles for PDF-like output */
   @media print {
     body { background: white; }
     .progress, .counter, .controls, .help-overlay,
-    .click-prev, .click-next, .topright, .checksum { display: none !important; }
+    .click-prev, .click-next, .topright, .checksum,
+    .menu-backdrop, .menu-sheet { display: none !important; }
     .slide {
       position: relative !important;
+      display: flex !important;
       opacity: 1 !important;
       pointer-events: auto !important;
       page-break-after: always;
@@ -242,30 +399,31 @@
 <body>
 
 <div class="deck" id="deck">
-  <div class="slide active"><img src="defense-slide-1.png" alt="Slide 1" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-2.png" alt="Slide 2" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-3.png" alt="Slide 3" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-4.png" alt="Slide 4" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-5.png" alt="Slide 5" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-6.png" alt="Slide 6" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-7.png" alt="Slide 7" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-8.png" alt="Slide 8" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-9.png" alt="Slide 9" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-10.png" alt="Slide 10" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-11.png" alt="Slide 11" draggable="false"/></div>
-  <div class="slide"><img src="defense-slide-12.png" alt="Slide 12" draggable="false"/></div>
+  <div class="slide active nearby"><img src="defense-slide-1.png" alt="Slide 1" draggable="false" decoding="async"/></div>
+  <div class="slide nearby"><img src="defense-slide-2.png" alt="Slide 2" draggable="false" decoding="async" loading="lazy"/></div>
+  <div class="slide"><img src="defense-slide-3.png" alt="Slide 3" draggable="false" decoding="async" loading="lazy"/></div>
+  <div class="slide"><img src="defense-slide-4.png" alt="Slide 4" draggable="false" decoding="async" loading="lazy"/></div>
+  <div class="slide"><img src="defense-slide-5.png" alt="Slide 5" draggable="false" decoding="async" loading="lazy"/></div>
+  <div class="slide"><img src="defense-slide-6.png" alt="Slide 6" draggable="false" decoding="async" loading="lazy"/></div>
+  <div class="slide"><img src="defense-slide-7.png" alt="Slide 7" draggable="false" decoding="async" loading="lazy"/></div>
+  <div class="slide"><img src="defense-slide-8.png" alt="Slide 8" draggable="false" decoding="async" loading="lazy"/></div>
+  <div class="slide"><img src="defense-slide-9.png" alt="Slide 9" draggable="false" decoding="async" loading="lazy"/></div>
+  <div class="slide"><img src="defense-slide-10.png" alt="Slide 10" draggable="false" decoding="async" loading="lazy"/></div>
+  <div class="slide"><img src="defense-slide-11.png" alt="Slide 11" draggable="false" decoding="async" loading="lazy"/></div>
+  <div class="slide"><img src="defense-slide-12.png" alt="Slide 12" draggable="false" decoding="async" loading="lazy"/></div>
 </div>
 
 <div class="progress" id="progress"></div>
 <div class="counter" id="counter">1 / 12</div>
 
-<div class="controls">
-  <button onclick="goTo(0)">First</button>
+<div class="controls" id="controls">
+  <button class="desktop-only" onclick="goTo(0)">First</button>
   <button onclick="prev()">Prev</button>
   <button onclick="next()">Next</button>
-  <button onclick="goTo(totalSlides - 1)">Last</button>
-  <button onclick="toggleFullscreen()">Fullscreen</button>
-  <button onclick="toggleHelp()">?</button>
+  <button class="desktop-only" onclick="goTo(totalSlides - 1)">Last</button>
+  <button class="desktop-only" onclick="toggleFullscreen()">Fullscreen</button>
+  <button class="desktop-only" onclick="toggleHelp()">?</button>
+  <button class="menu-btn" onclick="toggleMenu()" aria-label="More options">&#x22EF;</button>
 </div>
 
 <div class="topright">
@@ -280,43 +438,89 @@
 <div class="click-prev" onclick="prev()"></div>
 <div class="click-next" onclick="next()"></div>
 
+<!-- Mobile bottom-sheet menu -->
+<div class="menu-backdrop" id="menuBackdrop" onclick="closeMenu()"></div>
+<div class="menu-sheet" id="menuSheet">
+  <div class="menu-handle"></div>
+  <a href="./loggie-defense-pitch-deck.pdf" target="_blank" rel="noopener" onclick="closeMenu()">Open PDF</a>
+  <a href="./loggie-defense-pitch-deck.pdf" download onclick="closeMenu()">Download PDF</a>
+  <button onclick="triggerVerify()">Verify (SHA-256)</button>
+  <button onclick="toggleHelp(); closeMenu();">Help</button>
+  <button onclick="toggleFullscreen(); closeMenu();">Fullscreen</button>
+  <button onclick="goTo(0); closeMenu();">First Slide</button>
+  <button onclick="goTo(totalSlides-1); closeMenu();">Last Slide</button>
+</div>
+
 <div class="help-overlay" id="helpOverlay">
   <div class="help-content">
-    <div class="title">Keyboard Shortcuts</div>
-    <kbd>→</kbd> <kbd>Space</kbd> <kbd>↓</kbd> Next slide<br/>
-    <kbd>←</kbd> <kbd>Backspace</kbd> <kbd>↑</kbd> Previous slide<br/>
+    <div class="title">Navigation</div>
+    <kbd>&rarr;</kbd> <kbd>Space</kbd> <kbd>&darr;</kbd> Next slide<br/>
+    <kbd>&larr;</kbd> <kbd>Backspace</kbd> <kbd>&uarr;</kbd> Previous slide<br/>
     <kbd>Home</kbd> First slide<br/>
     <kbd>End</kbd> Last slide<br/>
     <kbd>F</kbd> Toggle fullscreen<br/>
     <kbd>Esc</kbd> Exit fullscreen / close help<br/>
     <kbd>?</kbd> Toggle this help<br/><br/>
-    Click left 25% to go back, right 75% to advance.
+    Swipe or tap left / right to navigate.
   </div>
 </div>
 
 <script>
+  // ─── Mobile detection ───────────────────────────────────────────────
+  const isMobile = matchMedia('(hover: none) and (pointer: coarse)').matches;
+
+  // ─── Core slide engine ──────────────────────────────────────────────
   const slides = document.querySelectorAll('.slide');
   const totalSlides = slides.length;
   const progress = document.getElementById('progress');
   const counter = document.getElementById('counter');
   const helpOverlay = document.getElementById('helpOverlay');
+  const controlsEl = document.getElementById('controls');
   let current = 0;
 
+  /* Keep only current ± 1 slides in the render tree */
+  function updateNearby(idx) {
+    for (let i = 0; i < totalSlides; i++) {
+      if (i >= idx - 1 && i <= idx + 1) {
+        slides[i].classList.add('nearby');
+      } else {
+        slides[i].classList.remove('nearby');
+      }
+    }
+  }
+
+  /* Pre-warm adjacent images in browser cache */
+  function preloadAdjacent(idx) {
+    [idx - 1, idx + 1].forEach(function (i) {
+      if (i >= 0 && i < totalSlides) {
+        var src = slides[i].querySelector('img').getAttribute('src');
+        if (src) new Image().src = src;
+      }
+    });
+  }
+
   function goTo(n) {
-    if (n < 0 || n >= totalSlides) return;
+    if (n < 0 || n >= totalSlides || n === current) return;
     slides[current].classList.remove('active');
     current = n;
     slides[current].classList.add('active');
+    updateNearby(current);
+    preloadAdjacent(current);
     progress.style.width = ((current + 1) / totalSlides * 100) + '%';
     counter.textContent = (current + 1) + ' / ' + totalSlides;
+    if (isMobile) flashCounter();
   }
 
   function next() { goTo(current + 1); }
   function prev() { goTo(current - 1); }
 
+  // Initialize
+  updateNearby(0);
+  progress.style.width = (1 / totalSlides * 100) + '%';
+
   function toggleFullscreen() {
     if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
+      document.documentElement.requestFullscreen().catch(function () {});
     } else {
       document.exitFullscreen();
     }
@@ -326,8 +530,8 @@
     helpOverlay.classList.toggle('visible');
   }
 
-  document.addEventListener('keydown', (e) => {
-    // Close help on any key if visible
+  // ─── Keyboard ───────────────────────────────────────────────────────
+  document.addEventListener('keydown', function (e) {
     if (helpOverlay.classList.contains('visible') && e.key !== '?') {
       helpOverlay.classList.remove('visible');
       if (e.key === 'Escape') return;
@@ -371,37 +575,82 @@
     }
   });
 
-  // Touch swipe support
-  let touchStartX = 0;
-  let touchStartY = 0;
+  // ─── Touch / swipe ─────────────────────────────────────────────────
+  var touchStartX = 0;
+  var touchStartY = 0;
 
-  document.addEventListener('touchstart', (e) => {
+  document.addEventListener('touchstart', function (e) {
     touchStartX = e.changedTouches[0].screenX;
     touchStartY = e.changedTouches[0].screenY;
   }, { passive: true });
 
-  document.addEventListener('touchend', (e) => {
-    const dx = e.changedTouches[0].screenX - touchStartX;
-    const dy = e.changedTouches[0].screenY - touchStartY;
+  document.addEventListener('touchend', function (e) {
+    var dx = e.changedTouches[0].screenX - touchStartX;
+    var dy = e.changedTouches[0].screenY - touchStartY;
     if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
       if (dx < 0) next();
       else prev();
     }
   }, { passive: true });
 
-  // Initialize progress bar
-  progress.style.width = (1 / totalSlides * 100) + '%';
+  // ─── Mobile counter flash ──────────────────────────────────────────
+  var counterTimer = null;
+  function flashCounter() {
+    counter.classList.add('visible');
+    clearTimeout(counterTimer);
+    counterTimer = setTimeout(function () { counter.classList.remove('visible'); }, 1500);
+  }
 
-  // ─── SHA-256 verification ──────────────────────────────────────────────
-  const PDF_PATH = "./loggie-defense-pitch-deck.pdf";
-  const EXPECTED_SHA256 = "d8c978f30b3bb07d184674b361d99648ae0a6976f443ec0e5b110325ecea53c5";
+  // ─── Mobile ⋯ menu ────────────────────────────────────────────────
+  var menuBackdrop = document.getElementById('menuBackdrop');
+  var menuSheet = document.getElementById('menuSheet');
 
-  const verifyBtn = document.getElementById("verifyShaBtn");
-  const shaStatus = document.getElementById("shaStatus");
-  let fadeTimer = null;
+  function toggleMenu() {
+    var open = menuSheet.classList.toggle('open');
+    menuBackdrop.classList.toggle('open', open);
+  }
+
+  function closeMenu() {
+    menuSheet.classList.remove('open');
+    menuBackdrop.classList.remove('open');
+  }
+
+  function triggerVerify() {
+    closeMenu();
+    document.getElementById('verifyShaBtn').click();
+  }
+
+  // ─── Landscape auto-hide controls ─────────────────────────────────
+  if (isMobile) {
+    var hideTimer = null;
+    var landscapeMQ = matchMedia('(orientation: landscape)');
+
+    function resetAutoHide() {
+      controlsEl.classList.remove('autohidden');
+      clearTimeout(hideTimer);
+      if (landscapeMQ.matches) {
+        hideTimer = setTimeout(function () { controlsEl.classList.add('autohidden'); }, 2000);
+      }
+    }
+
+    landscapeMQ.addEventListener('change', resetAutoHide);
+    document.addEventListener('touchstart', resetAutoHide, { passive: true });
+    resetAutoHide();
+
+    // Show counter briefly on load
+    flashCounter();
+  }
+
+  // ─── SHA-256 verification ──────────────────────────────────────────
+  var PDF_PATH = "./loggie-defense-pitch-deck.pdf";
+  var EXPECTED_SHA256 = "d8c978f30b3bb07d184674b361d99648ae0a6976f443ec0e5b110325ecea53c5";
+
+  var verifyBtn = document.getElementById("verifyShaBtn");
+  var shaStatus = document.getElementById("shaStatus");
+  var fadeTimer = null;
 
   // Hidden file input for local verification fallback
-  const fileInput = document.createElement("input");
+  var fileInput = document.createElement("input");
   fileInput.type = "file";
   fileInput.accept = ".pdf";
   fileInput.style.display = "none";
@@ -412,9 +661,9 @@
     shaStatus.className = "sha-status " + (cls || "warn");
     shaStatus.style.opacity = "1";
     clearTimeout(fadeTimer);
-    fadeTimer = setTimeout(() => {
+    fadeTimer = setTimeout(function () {
       shaStatus.style.opacity = "0";
-      setTimeout(() => {
+      setTimeout(function () {
         shaStatus.textContent = "";
         shaStatus.className = "sha-status";
         shaStatus.style.opacity = "";
@@ -423,17 +672,17 @@
   }
 
   function hexEncode(buffer) {
-    const bytes = new Uint8Array(buffer);
-    let out = "";
-    for (let i = 0; i < bytes.length; i++) {
+    var bytes = new Uint8Array(buffer);
+    var out = "";
+    for (var i = 0; i < bytes.length; i++) {
       out += bytes[i].toString(16).padStart(2, "0");
     }
     return out;
   }
 
   async function hashAndCompare(buf) {
-    const digest = await crypto.subtle.digest("SHA-256", buf);
-    const got = hexEncode(digest);
+    var digest = await crypto.subtle.digest("SHA-256", buf);
+    var got = hexEncode(digest);
     if (got === EXPECTED_SHA256) {
       setStatus("Verified", "ok");
     } else {
@@ -442,12 +691,12 @@
   }
 
   // Try fetch first (works when served via HTTP), fall back to file picker
-  verifyBtn.addEventListener("click", async () => {
+  verifyBtn.addEventListener("click", async function () {
     try {
       setStatus("Verifying\u2026", "warn");
-      const res = await fetch(PDF_PATH, { cache: "no-store" });
+      var res = await fetch(PDF_PATH, { cache: "no-store" });
       if (!res.ok) throw new Error("fetch_failed");
-      const buf = await res.arrayBuffer();
+      var buf = await res.arrayBuffer();
       await hashAndCompare(buf);
     } catch (e) {
       // Fetch blocked (file:// or CORS) — fall back to file picker
@@ -456,12 +705,12 @@
     }
   });
 
-  fileInput.addEventListener("change", async () => {
-    const file = fileInput.files[0];
+  fileInput.addEventListener("change", async function () {
+    var file = fileInput.files[0];
     if (!file) return;
     try {
       setStatus("Verifying\u2026", "warn");
-      const buf = await file.arrayBuffer();
+      var buf = await file.arrayBuffer();
       await hashAndCompare(buf);
     } catch (e) {
       setStatus("Error", "bad");
