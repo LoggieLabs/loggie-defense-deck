@@ -47,3 +47,35 @@ for (const [file, meta] of Object.entries(outputs)) {
   const kb = (meta.bytes / 1024).toFixed(1);
   console.log(`  ${name.padEnd(40)} ${kb} KB`);
 }
+
+// ── Build assertion: no WASM/pqc-shared in entry chunk ──────────────────
+import { readFileSync } from 'fs';
+
+const entryPath = resolve(jsDir, 'intake-client.js');
+const entryCode = readFileSync(entryPath, 'utf8');
+
+// Patterns that must never appear in the entry chunk.
+// String literals in error messages are OK (e.g. "pqc-shared module failed to load").
+// We check for actual code-level references, not human-readable diagnostics.
+const FORBIDDEN = [
+  { pattern: /WebAssembly\s*\./, reason: 'WASM API call would abort under strict CSP' },
+  { pattern: /from\s*["']@omnituum\/pqc-shared/, reason: 'static import triggers WASM at module eval time' },
+  { pattern: /require\s*\(\s*["']@omnituum\/pqc-shared/, reason: 'require() triggers WASM at module eval time' },
+];
+
+const violations = [];
+for (const { pattern, reason } of FORBIDDEN) {
+  if (pattern.test(entryCode)) {
+    violations.push(`  ✘ Matched ${pattern} in entry chunk — ${reason}`);
+  }
+}
+
+if (violations.length > 0) {
+  console.error('\n🚫 ENTRY CHUNK CONTAMINATION — build failed:\n');
+  violations.forEach(v => console.error(v));
+  console.error('\nThe entry chunk must contain only pure-JS code.');
+  console.error('pqc-shared must stay in lazy chunks loaded via dynamic import().\n');
+  process.exit(1);
+}
+
+console.log('\n✓ Entry chunk clean: no WebAssembly, no pqc-shared');
