@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Loggie — Defense Pitch Deck</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    height: 100%;
+    background: #0B1120;
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  /* Slide container */
+  .deck {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .slide img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+  }
+
+  /* Progress bar */
+  .progress {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 3px;
+    background: #6B9B8A;
+    transition: width 0.3s ease;
+    z-index: 100;
+  }
+
+  /* Slide counter */
+  .counter {
+    position: fixed;
+    bottom: 12px;
+    right: 20px;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+    font-weight: 500;
+    z-index: 100;
+    letter-spacing: 0.5px;
+  }
+
+  /* Controls overlay */
+  .controls {
+    position: fixed;
+    bottom: 12px;
+    left: 20px;
+    display: flex;
+    gap: 8px;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  body:hover .controls {
+    opacity: 1;
+  }
+
+  .controls button {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 6px 14px;
+    border-radius: 4px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+  }
+
+  .controls button:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  /* Help overlay */
+  .help-overlay {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+  }
+
+  .help-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .help-content {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 16px;
+    line-height: 2.2;
+    text-align: center;
+  }
+
+  .help-content kbd {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 3px 10px;
+    border-radius: 4px;
+    font-family: 'Cascadia Code', 'Fira Code', monospace;
+    font-size: 14px;
+    margin: 0 2px;
+  }
+
+  .help-content .title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #6B9B8A;
+    margin-bottom: 16px;
+  }
+
+  /* Click zones for navigation */
+  .click-prev, .click-next {
+    position: fixed;
+    top: 0;
+    height: 100%;
+    width: 25%;
+    z-index: 50;
+    cursor: pointer;
+  }
+
+  .click-prev { left: 0; }
+  .click-next { right: 0; width: 75%; }
+
+  /* Fullscreen adjustments */
+  :fullscreen .slide img,
+  :-webkit-full-screen .slide img {
+    max-width: 100vw;
+    max-height: 100vh;
+  }
+
+  /* Top-right controls */
+  .topright {
+    position: fixed;
+    top: 14px;
+    right: 18px;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    z-index: 100;
+  }
+
+  .dl {
+    font: 12px/1.2 Inter, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    color: rgba(176, 184, 200, 0.75);
+    text-decoration: none;
+    letter-spacing: 0.6px;
+  }
+
+  .dl:hover {
+    color: rgba(255, 255, 255, 0.85);
+    text-decoration: underline;
+  }
+
+  .dl.btn {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  .sha-status {
+    font: 12px/1.2 Inter, system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+    color: rgba(176, 184, 200, 0.65);
+    letter-spacing: 0.3px;
+    min-width: 92px;
+    text-align: left;
+    transition: opacity 0.4s ease;
+  }
+
+  .sha-status.ok { color: rgba(107, 155, 138, 0.95); }
+  .sha-status.bad { color: rgba(200, 110, 110, 0.95); }
+  .sha-status.warn { color: rgba(176, 184, 200, 0.65); }
+
+  /* SHA-256 checksum footer */
+  .checksum {
+    position: fixed;
+    bottom: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    font: 9px/1.2 'Cascadia Code', 'Fira Code', Consolas, monospace;
+    color: rgba(176, 184, 200, 0.3);
+    letter-spacing: 0.4px;
+    z-index: 100;
+    white-space: nowrap;
+  }
+
+  /* Print styles for PDF-like output */
+  @media print {
+    body { background: white; }
+    .progress, .counter, .controls, .help-overlay,
+    .click-prev, .click-next, .topright, .checksum { display: none !important; }
+    .slide {
+      position: relative !important;
+      opacity: 1 !important;
+      pointer-events: auto !important;
+      page-break-after: always;
+      height: 100vh;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="deck" id="deck">
+  <div class="slide active"><img src="defense-slide-1.png" alt="Slide 1" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-2.png" alt="Slide 2" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-3.png" alt="Slide 3" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-4.png" alt="Slide 4" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-5.png" alt="Slide 5" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-6.png" alt="Slide 6" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-7.png" alt="Slide 7" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-8.png" alt="Slide 8" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-9.png" alt="Slide 9" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-10.png" alt="Slide 10" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-11.png" alt="Slide 11" draggable="false"/></div>
+  <div class="slide"><img src="defense-slide-12.png" alt="Slide 12" draggable="false"/></div>
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">1 / 12</div>
+
+<div class="controls">
+  <button onclick="goTo(0)">First</button>
+  <button onclick="prev()">Prev</button>
+  <button onclick="next()">Next</button>
+  <button onclick="goTo(totalSlides - 1)">Last</button>
+  <button onclick="toggleFullscreen()">Fullscreen</button>
+  <button onclick="toggleHelp()">?</button>
+</div>
+
+<div class="topright">
+  <a class="dl" href="./loggie-defense-pitch-deck.pdf" target="_blank" rel="noopener">Open PDF</a>
+  <a class="dl" href="./loggie-defense-pitch-deck.pdf" download>Download PDF</a>
+  <button class="dl btn" id="verifyShaBtn" type="button" title="Verify the PDF integrity against its published SHA-256 checksum. If opened locally, you will be prompted to select your copy of the PDF — the file never leaves your browser.">Verify (SHA-256)</button>
+  <span class="sha-status" id="shaStatus" aria-live="polite"></span>
+</div>
+
+<div class="checksum">Deck PDF SHA-256: d8c978f30b3bb07d184674b361d99648ae0a6976f443ec0e5b110325ecea53c5</div>
+
+<div class="click-prev" onclick="prev()"></div>
+<div class="click-next" onclick="next()"></div>
+
+<div class="help-overlay" id="helpOverlay">
+  <div class="help-content">
+    <div class="title">Keyboard Shortcuts</div>
+    <kbd>→</kbd> <kbd>Space</kbd> <kbd>↓</kbd> Next slide<br/>
+    <kbd>←</kbd> <kbd>Backspace</kbd> <kbd>↑</kbd> Previous slide<br/>
+    <kbd>Home</kbd> First slide<br/>
+    <kbd>End</kbd> Last slide<br/>
+    <kbd>F</kbd> Toggle fullscreen<br/>
+    <kbd>Esc</kbd> Exit fullscreen / close help<br/>
+    <kbd>?</kbd> Toggle this help<br/><br/>
+    Click left 25% to go back, right 75% to advance.
+  </div>
+</div>
+
+<script>
+  const slides = document.querySelectorAll('.slide');
+  const totalSlides = slides.length;
+  const progress = document.getElementById('progress');
+  const counter = document.getElementById('counter');
+  const helpOverlay = document.getElementById('helpOverlay');
+  let current = 0;
+
+  function goTo(n) {
+    if (n < 0 || n >= totalSlides) return;
+    slides[current].classList.remove('active');
+    current = n;
+    slides[current].classList.add('active');
+    progress.style.width = ((current + 1) / totalSlides * 100) + '%';
+    counter.textContent = (current + 1) + ' / ' + totalSlides;
+  }
+
+  function next() { goTo(current + 1); }
+  function prev() { goTo(current - 1); }
+
+  function toggleFullscreen() {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
+  function toggleHelp() {
+    helpOverlay.classList.toggle('visible');
+  }
+
+  document.addEventListener('keydown', (e) => {
+    // Close help on any key if visible
+    if (helpOverlay.classList.contains('visible') && e.key !== '?') {
+      helpOverlay.classList.remove('visible');
+      if (e.key === 'Escape') return;
+    }
+
+    switch (e.key) {
+      case 'ArrowRight':
+      case 'ArrowDown':
+      case ' ':
+      case 'PageDown':
+        e.preventDefault();
+        next();
+        break;
+      case 'ArrowLeft':
+      case 'ArrowUp':
+      case 'Backspace':
+      case 'PageUp':
+        e.preventDefault();
+        prev();
+        break;
+      case 'Home':
+        e.preventDefault();
+        goTo(0);
+        break;
+      case 'End':
+        e.preventDefault();
+        goTo(totalSlides - 1);
+        break;
+      case 'f':
+      case 'F':
+        toggleFullscreen();
+        break;
+      case '?':
+        toggleHelp();
+        break;
+      case 'Escape':
+        if (helpOverlay.classList.contains('visible')) {
+          helpOverlay.classList.remove('visible');
+        }
+        break;
+    }
+  });
+
+  // Touch swipe support
+  let touchStartX = 0;
+  let touchStartY = 0;
+
+  document.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  document.addEventListener('touchend', (e) => {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    const dy = e.changedTouches[0].screenY - touchStartY;
+    if (Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > 50) {
+      if (dx < 0) next();
+      else prev();
+    }
+  }, { passive: true });
+
+  // Initialize progress bar
+  progress.style.width = (1 / totalSlides * 100) + '%';
+
+  // ─── SHA-256 verification ──────────────────────────────────────────────
+  const PDF_PATH = "./loggie-defense-pitch-deck.pdf";
+  const EXPECTED_SHA256 = "d8c978f30b3bb07d184674b361d99648ae0a6976f443ec0e5b110325ecea53c5";
+
+  const verifyBtn = document.getElementById("verifyShaBtn");
+  const shaStatus = document.getElementById("shaStatus");
+  let fadeTimer = null;
+
+  // Hidden file input for local verification fallback
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = ".pdf";
+  fileInput.style.display = "none";
+  document.body.appendChild(fileInput);
+
+  function setStatus(text, cls) {
+    shaStatus.textContent = text;
+    shaStatus.className = "sha-status " + (cls || "warn");
+    shaStatus.style.opacity = "1";
+    clearTimeout(fadeTimer);
+    fadeTimer = setTimeout(() => {
+      shaStatus.style.opacity = "0";
+      setTimeout(() => {
+        shaStatus.textContent = "";
+        shaStatus.className = "sha-status";
+        shaStatus.style.opacity = "";
+      }, 400);
+    }, 7000);
+  }
+
+  function hexEncode(buffer) {
+    const bytes = new Uint8Array(buffer);
+    let out = "";
+    for (let i = 0; i < bytes.length; i++) {
+      out += bytes[i].toString(16).padStart(2, "0");
+    }
+    return out;
+  }
+
+  async function hashAndCompare(buf) {
+    const digest = await crypto.subtle.digest("SHA-256", buf);
+    const got = hexEncode(digest);
+    if (got === EXPECTED_SHA256) {
+      setStatus("Verified", "ok");
+    } else {
+      setStatus("Mismatch", "bad");
+    }
+  }
+
+  // Try fetch first (works when served via HTTP), fall back to file picker
+  verifyBtn.addEventListener("click", async () => {
+    try {
+      setStatus("Verifying\u2026", "warn");
+      const res = await fetch(PDF_PATH, { cache: "no-store" });
+      if (!res.ok) throw new Error("fetch_failed");
+      const buf = await res.arrayBuffer();
+      await hashAndCompare(buf);
+    } catch (e) {
+      // Fetch blocked (file:// or CORS) — fall back to file picker
+      setStatus("Select PDF\u2026", "warn");
+      fileInput.click();
+    }
+  });
+
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    try {
+      setStatus("Verifying\u2026", "warn");
+      const buf = await file.arrayBuffer();
+      await hashAndCompare(buf);
+    } catch (e) {
+      setStatus("Error", "bad");
+    }
+    fileInput.value = "";
+  });
+</script>
+
+</body>
+</html>

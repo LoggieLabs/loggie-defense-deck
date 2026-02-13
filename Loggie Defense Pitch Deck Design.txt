@@ -1,0 +1,42 @@
+Loggie Pitch Deck — Master Design Prompt
+You are generating individual slide images for a 12-slide enterprise pitch deck. Every slide must follow these specifications exactly to maintain visual consistency across the full deck.
+Canvas
+16:9 aspect ratio. 1920×1080 pixels.
+Background
+Solid dark navy (#0B1120). No gradients. No textures. No patterns. No grain.
+Typography
+Primary headlines: White (#FFFFFF), clean sans-serif (Inter, Helvetica Neue, or equivalent), semibold, 36–44pt equivalent.
+Subheadlines and body: Soft gray (#B0B8C8), regular weight, 18–22pt equivalent.
+Accent labels (tier names, mode names, phase labels): Desaturated muted green (#6B9B8A) or muted violet (#8A7FB5), medium weight, 14–18pt equivalent. Pick one accent color and use it for the entire deck.
+No italics anywhere. No underlines.
+Layout
+Left-aligned text unless the slide is a centered title slide (Slide 1 and Slide 12 only).
+Generous margins — minimum 10% padding on all sides.
+Maximum 60% of the slide area should contain content. The remaining space is intentional white space.
+No more than 4 bullet points per slide.
+Bullet points use a small square or minimal dash — no circles, no icons, no checkmarks.
+Line spacing: 1.5x minimum.
+Logo
+Top left corner on every slide except Slide 1.
+"LOGGIE" in clean white caps, small, 12pt equivalent. No icon. No glow. No tagline next to it.
+On Slide 1, the logo is centered and larger (28–32pt equivalent).
+Diagrams (when specified)
+Flat rectangles with 1px borders in the accent color.
+Thin connecting lines or arrows in soft gray (#B0B8C8).
+No shadows. No 3D. No rounded corners. No glow effects.
+Labels inside or below shapes in soft gray at 14–16pt.
+Columns (when specified)
+Even spacing. Separated by vertical thin lines in (#1A2540) or by spacing alone — no boxes, no cards, no background fills.
+Global prohibitions
+No gradients anywhere.
+No glow effects.
+No neon colors.
+No stock photography.
+No icons.
+No decorative elements.
+No drop shadows.
+No rounded UI cards.
+No dark mode SaaS aesthetic.
+No startup energy.
+The deck must feel like:
+A classified infrastructure briefing document. Palantir investor materials. An AWS whitepaper cover. Anduril capability overview.

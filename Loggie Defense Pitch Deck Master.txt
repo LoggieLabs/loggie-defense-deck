@@ -1,0 +1,161 @@
+Slide 1 — Title
+
+Loggie
+
+Independent Cryptographic Proof for Operational Systems
+
+Integrity infrastructure for autonomous, regulated, and high-trust environments.
+
+(No italics. Keep it institutional.)
+
+Slide 2 — The Problem
+
+Operational systems produce logs, telemetry, AI decisions, and compliance records at scale.
+
+These records are not independently verifiable.
+
+Audit trails are controlled by the systems they monitor. When integrity is questioned, evidence can be disputed or insufficient. There is no neutral proof of what occurred.
+
+(Removed “altered or lost” — that language can sound accusatory.)
+
+Slide 3 — Why Now
+
+Autonomous operations are expanding across commercial and defense environments.
+
+Regulatory enforcement — including CMMC, FAA, and enterprise governance — is accelerating.
+
+Litigation and insurance scrutiny increasingly require independently verifiable records.
+
+Centralized audit infrastructure lacks structural independence.
+
+We are entering an accountability era.
+
+(“Growing distrust” removed — distrust sounds political.)
+
+Slide 4 — The Core Solution
+
+Loggie provides:
+
+Tamper-evident record anchoring
+
+Cryptographic timestamping
+
+Identity-bound submissions
+
+Independent chain-of-custody verification
+
+Loggie does not replace storage.
+Loggie establishes integrity.
+
+“Establishes” reads more institutional than “proves.”
+
+Slide 5 — Architecture Overview
+
+Three-tier model:
+
+Tier 1 — Source Systems
+Customer-controlled files, telemetry, logs, and operational records.
+
+Tier 2 — Loggie Integrity Layer
+Records are hashed, batched, and anchored with cryptographic timestamps and identity binding.
+
+Tier 3 — Optional Anchor Layer
+Periodic root commitments to a private or third-party notarization layer for independent verification.
+
+No sensitive data is transmitted to public networks. Only cryptographic commitments leave the integrity layer.
+
+(“Transmitted” is cleaner than “stored.”)
+
+Slide 6 — Deployment Modes
+
+Private Mode
+Fully internal deployment. No external anchoring. Enterprise-controlled.
+
+Consortium Mode
+Shared verification across authorized parties. Private infrastructure.
+
+Public Notarization Mode
+Periodic root anchoring to a third-party notarization layer. Independently verifiable.
+
+(Clean and balanced.)
+
+Slide 7 — Initial Focus
+
+Autonomous and Regulated Operational Workflows
+
+Commercial drone compliance
+
+Medical transport records
+
+High-trust AI output verification
+
+Regulated enterprise audit workflows
+
+(Narrow. Disciplined.)
+
+Slide 8 — Example Applications
+
+Autonomous Systems
+Flight log integrity. Firmware version proof. Incident reconstruction.
+
+Provenance and Attribution
+Research and IP attribution. Grant submission records.
+
+Compliance and Audit
+CMMC evidence anchoring. Incident report integrity. Policy version proof.
+
+Application examples — not separate products.
+
+(Removed em dash sentence for simplicity.)
+
+Slide 9 — Why Loggie Is Different
+
+Independent from the system operator
+
+Cryptographic integrity at the record level
+
+Optional third-party notarization
+
+Post-quantum-ready cryptographic foundation
+
+Minimal integration footprint
+
+(“Post-quantum-ready” softens the claim.)
+
+Slide 10 — Omnituum
+
+The cryptographic engine underlying Loggie.
+
+Identity primitives
+
+Hybrid encryption
+
+Post-quantum readiness
+
+Secure envelope infrastructure
+
+Omnituum provides the cryptographic substrate.
+Loggie provides the operational integrity layer built upon it.
+
+(“Underlying” sounds less like branding.)
+
+Slide 11 — Go-to-Market
+
+Phase 1
+Targeted commercial pilots within regulated operational workflows.
+
+Phase 2
+Defense-adjacent compliance integration and broader enterprise deployment.
+
+(Removed “support.” Stronger.)
+
+Slide 12 — Vision
+
+Payments infrastructure was standardized.
+Compute infrastructure was standardized.
+
+Integrity infrastructure will be standardized.
+
+Loggie becomes the independent proof layer beneath high-trust systems.
+
+(This avoids startup comparison framing.)
