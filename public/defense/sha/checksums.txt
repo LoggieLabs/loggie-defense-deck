@@ -1,8 +1,8 @@
-# Loggie Defense Portal — Supporting Document Checksums
+# Loggie Defense Portal — Published Document Checksums
 # Algorithm: SHA-256
 # Generated: 2026-02-13
-# Path base: /defense/assets/docs/
 
+d8c978f30b3bb07d184674b361d99648ae0a6976f443ec0e5b110325ecea53c5  loggie-defense-pitch-deck.pdf
 af9a3986812c287c4df6246779c9505d9c6cc6c5bcc11ba0d24519f28f1acab9  loggie_architecture_diagram.pdf
 126e6ad98b9b4c0ba749f05d82d1751e90cca5a1b63510659e30b519a174135c  loggie_cmmc_pilot_sow.pdf
 c4e34bdc0429ba3332947b4121d0e5fabd9c4af88592751ad44c57a22181491c  loggie-defense-capability-brief-exec.pdf

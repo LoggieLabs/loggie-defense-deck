@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Loggie — Document Verification</title>
+<link rel="icon" type="image/x-icon" href="/assets/branding/favicon.ico"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/branding/favicon-32x32.png"/>
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/branding/favicon-16x16.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/branding/apple-touch-icon.png"/>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    background: #0B1120;
+    color: rgba(220, 225, 235, 0.90);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* ── Top bar ─────────────────────────────────────────────── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  }
+
+  .topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .topbar-logo img {
+    width: 22px;
+    height: 22px;
+    opacity: 0.5;
+    filter: grayscale(1);
+  }
+
+  .topbar-logo span {
+    font-size: 12px;
+    color: rgba(176, 184, 200, 0.4);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .topbar a.back-link {
+    font-size: 12px;
+    color: rgba(176, 184, 200, 0.45);
+    text-decoration: none;
+    letter-spacing: 0.4px;
+  }
+
+  .topbar a.back-link:hover {
+    color: rgba(176, 184, 200, 0.75);
+  }
+
+  /* ── Layout ──────────────────────────────────────────────── */
+  .container {
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 48px 28px 80px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #6B9B8A;
+    text-align: center;
+    letter-spacing: -0.2px;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: rgba(176, 184, 200, 0.60);
+    text-align: center;
+    margin-bottom: 36px;
+    line-height: 1.5;
+  }
+
+  /* ── Drop zone ─────────────────────────────────────────────── */
+  .drop-zone {
+    border: 1px dashed rgba(176, 184, 200, 0.25);
+    border-radius: 8px;
+    padding: 40px 28px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .drop-zone:hover,
+  .drop-zone.dragover {
+    border-color: rgba(107, 155, 138, 0.5);
+    background: rgba(107, 155, 138, 0.04);
+  }
+
+  .drop-zone-label {
+    font-size: 14px;
+    color: rgba(176, 184, 200, 0.55);
+    line-height: 1.6;
+  }
+
+  .drop-zone-label strong {
+    color: rgba(107, 155, 138, 0.85);
+    font-weight: 500;
+  }
+
+  .drop-zone-hint {
+    font-size: 12px;
+    color: rgba(176, 184, 200, 0.35);
+    margin-top: 8px;
+  }
+
+  #fileInput {
+    display: none;
+  }
+
+  /* ── Result ────────────────────────────────────────────────── */
+  .result {
+    display: none;
+    margin-top: 28px;
+    padding: 24px;
+    border-radius: 8px;
+    border: 1px solid rgba(176, 184, 200, 0.16);
+    background: rgba(255, 255, 255, 0.02);
+  }
+
+  .result.visible { display: block; }
+
+  .result-filename {
+    font-size: 13px;
+    color: rgba(176, 184, 200, 0.55);
+    margin-bottom: 12px;
+    word-break: break-all;
+  }
+
+  .result-hash {
+    font: 11px/1.5 'Cascadia Code', 'Fira Code', Consolas, monospace;
+    color: rgba(176, 184, 200, 0.50);
+    word-break: break-all;
+    margin-bottom: 16px;
+    letter-spacing: 0.3px;
+  }
+
+  .result-status {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  .result-status.match {
+    color: rgba(107, 155, 138, 0.95);
+  }
+
+  .result-status.mismatch {
+    color: rgba(220, 160, 120, 0.9);
+  }
+
+  .result-detail {
+    font-size: 12px;
+    color: rgba(176, 184, 200, 0.50);
+    margin-top: 4px;
+  }
+
+  /* ── Hashing indicator ─────────────────────────────────────── */
+  .hashing {
+    display: none;
+    text-align: center;
+    padding: 24px;
+    font-size: 13px;
+    color: rgba(176, 184, 200, 0.50);
+  }
+
+  .hashing.visible { display: block; }
+
+  /* ── Footer note ───────────────────────────────────────────── */
+  .note {
+    font-size: 11px;
+    color: rgba(176, 184, 200, 0.35);
+    text-align: center;
+    margin-top: 28px;
+    line-height: 1.5;
+  }
+
+  .note a {
+    color: rgba(107, 155, 138, 0.65);
+    text-decoration: none;
+  }
+
+  .note a:hover {
+    color: rgba(107, 155, 138, 0.9);
+  }
+
+  /* ── Mobile ──────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .container {
+      padding: 36px 20px 60px;
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+
+    .drop-zone {
+      padding: 32px 20px;
+    }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Top bar ──────────────────────────────────────────────── -->
+<div class="topbar">
+  <a class="topbar-logo" href="/">
+    <img src="/assets/branding/favicon-32x32.png" alt="" width="22" height="22"/>
+    <span>Loggie</span>
+  </a>
+  <a class="back-link" href="/">Back to portal</a>
+</div>
+
+<div class="container">
+
+  <h1>Document Verification</h1>
+  <div class="subtitle">Verify any downloaded PDF against published checksums.<br/>File never leaves your browser.</div>
+
+  <!-- ── Drop zone ──────────────────────────────────────────── -->
+  <div class="drop-zone" id="dropZone">
+    <input type="file" id="fileInput" accept=".pdf"/>
+    <div class="drop-zone-label">
+      Drop a PDF here or <strong>click to select</strong>
+    </div>
+    <div class="drop-zone-hint">SHA-256 computed locally in your browser</div>
+  </div>
+
+  <!-- ── Hashing indicator ──────────────────────────────────── -->
+  <div class="hashing" id="hashing">Computing SHA-256...</div>
+
+  <!-- ── Result ─────────────────────────────────────────────── -->
+  <div class="result" id="result">
+    <div class="result-filename" id="resultFilename"></div>
+    <div class="result-hash" id="resultHash"></div>
+    <div class="result-status" id="resultStatus"></div>
+    <div class="result-detail" id="resultDetail"></div>
+  </div>
+
+  <div class="note">
+    Checksums verified against
+    <a href="/defense/sha/checksums.txt" target="_blank" rel="noopener">published checksum index</a>.
+    No network required after page load.
+  </div>
+
+</div>
+
+<script type="module" src="/assets/js/verify.js"></script>
+
+</body>
+</html>
