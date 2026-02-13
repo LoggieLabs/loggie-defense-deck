@@ -2,10 +2,564 @@
 <html lang="en">
 <head>
 <meta charset="utf-8"/>
-<meta http-equiv="refresh" content="0;url=https://secure-intake.pages.dev/"/>
-<title>Redirecting to Secure Intake</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<title>Loggie — Secure Inquiry</title>
+<link rel="icon" type="image/x-icon" href="/assets/branding/favicon.ico"/>
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/branding/favicon-32x32.png"/>
+<link rel="icon" type="image/png" sizes="16x16" href="/assets/branding/favicon-16x16.png"/>
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/branding/apple-touch-icon.png"/>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html {
+    background: #0B1120;
+    color: rgba(220, 225, 235, 0.90);
+    font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  body {
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  /* ── Top bar ─────────────────────────────────────────────── */
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 28px;
+    padding-top: calc(16px + env(safe-area-inset-top, 0px));
+  }
+
+  .topbar-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+  }
+
+  .topbar-logo img {
+    width: 22px;
+    height: 22px;
+    opacity: 0.5;
+    filter: grayscale(1);
+  }
+
+  .topbar-logo span {
+    font-size: 12px;
+    color: rgba(176, 184, 200, 0.4);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .topbar a.back-link {
+    font-size: 12px;
+    color: rgba(176, 184, 200, 0.45);
+    text-decoration: none;
+    letter-spacing: 0.4px;
+  }
+
+  .topbar a.back-link:hover {
+    color: rgba(176, 184, 200, 0.75);
+  }
+
+  /* ── Layout ──────────────────────────────────────────────── */
+  .container {
+    max-width: 540px;
+    margin: 0 auto;
+    padding: 48px 28px 80px;
+  }
+
+  h1 {
+    font-size: 22px;
+    font-weight: 600;
+    color: #6B9B8A;
+    text-align: center;
+    letter-spacing: -0.2px;
+    margin-bottom: 8px;
+  }
+
+  .subtitle {
+    font-size: 14px;
+    color: rgba(176, 184, 200, 0.60);
+    text-align: center;
+    margin-bottom: 36px;
+    line-height: 1.5;
+  }
+
+  /* ── Form ────────────────────────────────────────────────── */
+  .form-group {
+    margin-bottom: 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: rgba(220, 225, 235, 0.75);
+    margin-bottom: 6px;
+    letter-spacing: 0.2px;
+  }
+
+  label .req {
+    color: rgba(107, 155, 138, 0.7);
+  }
+
+  input[type="email"],
+  input[type="text"],
+  textarea,
+  select {
+    width: 100%;
+    padding: 10px 14px;
+    font-size: 14px;
+    font-family: inherit;
+    color: rgba(220, 225, 235, 0.90);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(176, 184, 200, 0.18);
+    border-radius: 5px;
+    outline: none;
+    transition: border-color 0.2s ease;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    border-color: rgba(107, 155, 138, 0.5);
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: rgba(176, 184, 200, 0.30);
+  }
+
+  textarea {
+    min-height: 80px;
+    resize: vertical;
+    line-height: 1.5;
+  }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none'%3E%3Cpath d='M3 5l3 3 3-3' stroke='rgba(176,184,200,0.4)' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+  }
+
+  select option {
+    background: #0B1120;
+    color: rgba(220, 225, 235, 0.90);
+  }
+
+  /* ── Compliance chips ──────────────────────────────────────── */
+  .chip-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-family: inherit;
+    color: rgba(176, 184, 200, 0.55);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(176, 184, 200, 0.16);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    letter-spacing: 0.2px;
+  }
+
+  .chip:hover {
+    border-color: rgba(176, 184, 200, 0.30);
+    color: rgba(176, 184, 200, 0.75);
+  }
+
+  .chip.active {
+    background: rgba(107, 155, 138, 0.12);
+    border-color: rgba(107, 155, 138, 0.4);
+    color: rgba(107, 155, 138, 0.9);
+  }
+
+  /* ── Honeypot ──────────────────────────────────────────────── */
+  .hp { position: absolute; left: -9999px; opacity: 0; height: 0; }
+
+  /* ── Submit button ─────────────────────────────────────────── */
+  .btn-submit {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-family: inherit;
+    font-weight: 500;
+    color: rgba(220, 225, 235, 0.90);
+    background: transparent;
+    border: 1px solid rgba(107, 155, 138, 0.4);
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    letter-spacing: 0.3px;
+    margin-top: 28px;
+  }
+
+  .btn-submit:hover:not(:disabled) {
+    background: rgba(107, 155, 138, 0.12);
+    border-color: rgba(107, 155, 138, 0.6);
+    color: #fff;
+  }
+
+  .btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .btn-submit svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner { animation: spin 0.8s linear infinite; }
+
+  /* ── Hint ───────────────────────────────────────────────────── */
+  .hint {
+    font-size: 12px;
+    color: rgba(176, 184, 200, 0.42);
+    text-align: center;
+    margin-top: 16px;
+    line-height: 1.5;
+  }
+
+  /* ── Error banner ──────────────────────────────────────────── */
+  .error-banner {
+    display: none;
+    padding: 12px 16px;
+    font-size: 13px;
+    color: rgba(220, 140, 140, 0.9);
+    background: rgba(220, 80, 80, 0.08);
+    border: 1px solid rgba(220, 80, 80, 0.2);
+    border-radius: 5px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .error-banner.visible { display: block; }
+
+  /* ── Success state ─────────────────────────────────────────── */
+  .success-state {
+    display: none;
+    text-align: center;
+    padding: 40px 0;
+  }
+
+  .success-state.visible { display: block; }
+
+  .success-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: rgba(107, 155, 138, 0.08);
+    border: 1px solid rgba(107, 155, 138, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+
+  .success-icon svg {
+    width: 28px;
+    height: 28px;
+    color: #6B9B8A;
+  }
+
+  .success-state h2 {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgba(220, 225, 235, 0.90);
+    text-transform: none;
+    letter-spacing: -0.1px;
+    margin-bottom: 8px;
+  }
+
+  .success-state p {
+    font-size: 14px;
+    color: rgba(176, 184, 200, 0.60);
+    margin-bottom: 6px;
+  }
+
+  .success-state .done-link {
+    display: inline-block;
+    margin-top: 20px;
+    font-size: 13px;
+    color: rgba(107, 155, 138, 0.85);
+    text-decoration: none;
+    letter-spacing: 0.2px;
+  }
+
+  .success-state .done-link:hover {
+    color: #6B9B8A;
+  }
+
+  /* ── Crypto badge ──────────────────────────────────────────── */
+  .crypto-badge {
+    font-size: 11px;
+    color: rgba(176, 184, 200, 0.35);
+    text-align: center;
+    margin-top: 24px;
+    letter-spacing: 0.3px;
+  }
+
+  .crypto-badge .pq {
+    color: rgba(107, 155, 138, 0.55);
+  }
+
+  /* ── Mobile ──────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .container {
+      padding: 36px 20px 60px;
+    }
+
+    h1 {
+      font-size: 20px;
+    }
+  }
+</style>
 </head>
-<body style="background:#0B1120;color:rgba(220,225,235,0.9);font-family:'Segoe UI',sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;margin:0;">
-<p>Redirecting to <a href="https://secure-intake.pages.dev/" style="color:#6B9B8A;">secure intake</a>.</p>
+<body>
+
+<!-- ── Top bar ──────────────────────────────────────────────── -->
+<div class="topbar">
+  <a class="topbar-logo" href="/">
+    <img src="/assets/branding/favicon-32x32.png" alt="" width="22" height="22"/>
+    <span>Loggie</span>
+  </a>
+  <a class="back-link" href="/">Back to portal</a>
+</div>
+
+<div class="container">
+
+  <h1>Secure Inquiry</h1>
+  <div class="subtitle">End-to-end encrypted. Your submission is sealed before it leaves the browser.</div>
+
+  <!-- ── Success state ──────────────────────────────────────── -->
+  <div class="success-state" id="successState">
+    <div class="success-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <polyline points="20 6 9 17 4 12"/>
+      </svg>
+    </div>
+    <h2>Request Submitted</h2>
+    <p>Your inquiry has been securely submitted.</p>
+    <p style="font-size:12px; color:rgba(176,184,200,0.45);">We typically respond within 1–2 business days.</p>
+    <a class="done-link" href="/">Return to portal</a>
+  </div>
+
+  <!-- ── Form ───────────────────────────────────────────────── -->
+  <form id="intakeForm" autocomplete="off" novalidate>
+
+    <div class="error-banner" id="errorBanner"></div>
+
+    <!-- Email -->
+    <div class="form-group">
+      <label for="f-email">Work Email <span class="req">*</span></label>
+      <input type="email" id="f-email" name="email" required placeholder="you@organization.mil"/>
+    </div>
+
+    <!-- Company -->
+    <div class="form-group">
+      <label for="f-company">Organization <span class="req">*</span></label>
+      <input type="text" id="f-company" name="company" required placeholder="e.g. US Navy, Northrop Grumman"/>
+    </div>
+
+    <!-- System / workflow -->
+    <div class="form-group">
+      <label for="f-system">System / Workflow (1–2 sentences)</label>
+      <textarea id="f-system" name="system" placeholder="e.g. Operational log integrity, automated decision audit trail..."></textarea>
+    </div>
+
+    <!-- Use case -->
+    <div class="form-group">
+      <label for="f-usecase">Primary Use Case <span class="req">*</span></label>
+      <select id="f-usecase" name="useCase" required>
+        <option value="">Select use case...</option>
+        <option value="ai-audit">Automated decision traceability</option>
+        <option value="compliance">Audit / regulatory record integrity</option>
+        <option value="legal">Evidence integrity / chain-of-custody</option>
+        <option value="data-integrity">System log integrity</option>
+        <option value="files">Document notarization</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <!-- Timeline -->
+    <div class="form-group">
+      <label for="f-timeline">Implementation Timeline</label>
+      <select id="f-timeline" name="timeline">
+        <option value="">Select timeline...</option>
+        <option value="0-30">0–30 days</option>
+        <option value="30-90">30–90 days</option>
+        <option value="90+">90+ days</option>
+      </select>
+    </div>
+
+    <!-- Compliance -->
+    <div class="form-group">
+      <label>Compliance Requirements (optional)</label>
+      <div class="chip-group" id="complianceChips">
+        <button type="button" class="chip" data-value="cmmc">CMMC</button>
+        <button type="button" class="chip" data-value="fedramp">FedRAMP</button>
+        <button type="button" class="chip" data-value="itar">ITAR</button>
+        <button type="button" class="chip" data-value="nist-800-171">NIST 800-171</button>
+        <button type="button" class="chip" data-value="nist-800-53">NIST 800-53</button>
+        <button type="button" class="chip" data-value="cjis">CJIS</button>
+        <button type="button" class="chip" data-value="hipaa">HIPAA</button>
+        <button type="button" class="chip" data-value="soc2">SOC 2</button>
+        <button type="button" class="chip" data-value="gov">Government</button>
+      </div>
+    </div>
+
+    <!-- Honeypot -->
+    <div class="hp" aria-hidden="true">
+      <label for="f-website">Website</label>
+      <input type="text" id="f-website" name="website" tabindex="-1" autocomplete="off"/>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn-submit" id="submitBtn">
+      <span id="btnLabel">Submit Secure Inquiry</span>
+      <svg id="btnArrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+      </svg>
+      <svg id="btnSpinner" class="spinner" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none;">
+        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+      </svg>
+    </button>
+
+    <p class="hint">
+      Typical pilot: 60–90 days · scoped to one system · evaluation-focused
+    </p>
+
+    <div class="crypto-badge" id="cryptoBadge">
+      Initializing encryption...
+    </div>
+  </form>
+
+</div>
+
+<script type="module">
+import { createPilotAccessClient, checkCryptoCapability } from '/assets/js/intake-client.js';
+
+// ── Config ──────────────────────────────────────────────────
+const client = createPilotAccessClient({
+  endpoint: 'https://secure-intake.pages.dev/api/intake',
+  publicKeys: {
+    x25519PubHex: 'bebc2a4a3826f20e389c2236a5c4ea55222e70e33a1bf03f873436b079256b64',
+    kyberPubB64: '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',
+  },
+});
+
+// ── DOM refs ────────────────────────────────────────────────
+const form = document.getElementById('intakeForm');
+const errorBanner = document.getElementById('errorBanner');
+const successState = document.getElementById('successState');
+const submitBtn = document.getElementById('submitBtn');
+const btnLabel = document.getElementById('btnLabel');
+const btnArrow = document.getElementById('btnArrow');
+const btnSpinner = document.getElementById('btnSpinner');
+const cryptoBadge = document.getElementById('cryptoBadge');
+const honeypot = document.getElementById('f-website');
+
+// ── Compliance chip toggles ─────────────────────────────────
+const selectedCompliance = new Set();
+
+document.getElementById('complianceChips').addEventListener('click', (e) => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  const val = chip.dataset.value;
+  if (selectedCompliance.has(val)) {
+    selectedCompliance.delete(val);
+    chip.classList.remove('active');
+  } else {
+    selectedCompliance.add(val);
+    chip.classList.add('active');
+  }
+});
+
+// ── Crypto capability check ─────────────────────────────────
+(async () => {
+  try {
+    const cap = await client.checkCryptoCapability();
+    if (cap.kyberAvailable) {
+      cryptoBadge.innerHTML = 'Protected by <span class="pq">post-quantum hybrid encryption</span> (X25519 + ML-KEM)';
+    } else {
+      cryptoBadge.innerHTML = 'Protected by <span class="pq">X25519 encryption</span>';
+    }
+  } catch {
+    cryptoBadge.textContent = 'End-to-end encrypted';
+  }
+})();
+
+// ── Form submission ─────────────────────────────────────────
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  errorBanner.classList.remove('visible');
+
+  const formData = {
+    email: document.getElementById('f-email').value.trim(),
+    company: document.getElementById('f-company').value.trim(),
+    system: document.getElementById('f-system').value.trim(),
+    useCase: document.getElementById('f-usecase').value,
+    timeline: document.getElementById('f-timeline').value,
+    compliance: [...selectedCompliance].sort(),
+  };
+
+  // Basic validation
+  if (!formData.email || !formData.company || !formData.useCase) {
+    showError('Please fill in all required fields.');
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const result = await client.submit(formData, 'request_pilot_access', honeypot.value || undefined);
+
+    if (result.ok) {
+      form.style.display = 'none';
+      successState.classList.add('visible');
+    } else {
+      showError(result.error || 'Submission failed. Please try again.');
+    }
+  } catch (err) {
+    showError(err.message || 'An unexpected error occurred. Please try again.');
+  } finally {
+    setLoading(false);
+  }
+});
+
+function setLoading(on) {
+  submitBtn.disabled = on;
+  btnLabel.textContent = on ? 'Encrypting & Submitting...' : 'Submit Secure Inquiry';
+  btnArrow.style.display = on ? 'none' : 'block';
+  btnSpinner.style.display = on ? 'block' : 'none';
+}
+
+function showError(msg) {
+  errorBanner.textContent = msg;
+  errorBanner.classList.add('visible');
+}
+</script>
+
 </body>
 </html>
